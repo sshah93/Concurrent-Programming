@@ -9,70 +9,71 @@ typedef enum
 	true
 } 	bool; 
 
-bool IsPrime(int num) 
+/* Modified sieve */
+bool isPrime(int number)
 {
-    int i;
+	int i;
+	if(number < 2) 
+		return false;
 
-    for (i=2; i<num; i++)
+	if(number == 2) 
+		return true;
+
+	if(number % 2 == 0) 
+		return false;
+  
+	for(i = 3; (i*i)<=number; i+=2)
 	{
-        if (num % i == 0 && i != num) 
-			return false;
-    }
+		if(number % i == 0 ) 
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 int main(int argc, char** argv)
 {
+	int top, bottom, countOfArg, pid;
+	int fd[2];
+	int buffer[BUFFER_SIZE];
+	pid_t storeAllPid[PIDS_SIZE];
+	
 	if(argc <= 1)
 	{
 		printf("Usage: ./primes <increasing positive integers>\n");
 		return 0;
 	}
 	
-	int bottom;
-	int top;
-	bool flag;
-	int countOfArg;
-	
 	bottom = 2;
 	top = argv[1];
-	flag = false;
-	countOfArg = 1;
-	
-	if(argc > 2)
-	{
-		flag = true;
-	}
-	
-	int fd[2];
-	int pid;
-	int buffer[BUFFER_SIZE];
-	pid_t storeAllPid[PIDS_SIZE];
-	
+	countOfArg = argc - 1;
+		
 	pipe(fd);
 	
-	/* creating new children, will have to put this in loop */
-	pid = fork();
-	
-	/* Trouble */
-	if(pid < 0)
+	for(int i = 0; i < countOfArg; i++)
 	{
-		printf("Problem in function call fork. Your child didn't spawn!\n");
-		return 1;
-	}
+		/* creating new children, will have to put this in loop */
+		pid = fork();
 	
-	/* Parent part */
-	else if(pid > 0)
-	{
-		printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
-		close(fd[0]); 
-	}
-	
-	/* children */
-	else
-	{
-		printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
-		close(fd[0]);
+		/* Trouble */
+		if(pid < 0)
+		{
+			printf("Problem in function call fork. Your child didn't spawn!\n");
+			return 1;
+		}
+		
+		/* Parent part */
+		else if(pid > 0)
+		{
+			printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
+			close(fd[0]); 
+		}
+		
+		/* children */
+		else
+		{
+			printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
+			close(fd[0]);
+		}
 	}
 }

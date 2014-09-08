@@ -49,4 +49,30 @@ int main(int argc, char** argv)
 	int pid;
 	int buffer[BUFFER_SIZE];
 	pid_t storeAllPid[PIDS_SIZE];
+	
+	pipe(fd);
+	
+	/* creating new children, will have to put this in loop */
+	pid = fork();
+	
+	/* Trouble */
+	if(pid < 0)
+	{
+		printf("Problem in function call fork. Your child didn't spawn!\n");
+		return 1;
+	}
+	
+	/* Parent part */
+	else if(pid > 0)
+	{
+		printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
+		close(fd[0]); 
+	}
+	
+	/* children */
+	else
+	{
+		printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
+		close(fd[0]);
+	}
 }

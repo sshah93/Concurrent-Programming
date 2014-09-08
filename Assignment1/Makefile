@@ -1,12 +1,12 @@
 NAME = primes
 SRC = primes.c
 OBJ = $(SRC:.c=.o)
-CFLAGS = -Wall
+
 CERRORS = -pedantic-errors
 RM = rm -f
 
 all: $(OBJ)
-	$(GCC) $(CFLAGS) $(CERRORS) $(SRC) -o $(NAME)
+	gcc -Wall $(CERRORS) $(SRC) -o $(NAME)
 
 clean:
 	$(RM) *.o

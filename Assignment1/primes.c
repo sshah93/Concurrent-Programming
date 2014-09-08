@@ -33,7 +33,7 @@ bool isPrime(int number)
 
 int main(int argc, char** argv)
 {
-	int top, bottom, countOfArg, pid;
+	int top, bottom, countOfArg, pid, i;
 	int fd[2];
 	int buffer[BUFFER_SIZE];
 	pid_t storeAllPid[PIDS_SIZE];
@@ -45,13 +45,19 @@ int main(int argc, char** argv)
 	}
 	
 	bottom = 2;
-	top = argv[1];
+	top = strtol(argv[1], NULL, 10);
 	countOfArg = argc - 1;
-		
+
 	pipe(fd);
 	
-	for(int i = 0; i < countOfArg; i++)
+	for(i = 0; i < countOfArg; ++i)
 	{
+		if(i != 0)
+		{
+			bottom = top + 1;
+			top = strtol(argv[i+1], NULL, 10);
+		}
+		
 		/* creating new children, will have to put this in loop */
 		pid = fork();
 	
@@ -65,14 +71,14 @@ int main(int argc, char** argv)
 		/* Parent part */
 		else if(pid > 0)
 		{
-			printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
-			close(fd[0]); 
+			/* printf("child %i: bottom=%i, top=%i\n", getpid(), bottom, top); */
+			/* close(fd[0]); */
 		}
 		
 		/* children */
 		else
 		{
-			printf("child %i: bottom=%i, top=%i\n", getpid(), floor, ceiling);
+			printf("child %i: bottom=%i, top=%i\n", getpid(), bottom, top);
 			close(fd[0]);
 		}
 	}

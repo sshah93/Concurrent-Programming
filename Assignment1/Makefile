@@ -6,7 +6,7 @@ CERRORS = -pedantic-errors
 RM = rm -f
 
 all: $(OBJ)
-	$(CC) $(SRC) -o $(NAME)
+	$(GCC) $(CFLAGS) $(CERRORS) $(SRC) -o $(NAME)
 
 clean:
 	$(RM) *.o

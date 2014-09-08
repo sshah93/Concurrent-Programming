@@ -1,5 +1,8 @@
 #include "header.h"
 
+#define PIDS_SIZE 200
+#define BUFFER_SIZE 1
+
 typedef enum 
 {
 	false, 
@@ -29,6 +32,8 @@ int main(int argc, char** argv)
 		flag = true;
 	}
 	
-	int fd;
+	int fd[2];
 	int pid;
+	int buffer[BUFFER_SIZE];
+	pid_t storeAllPid[PIDS_SIZE];
 }

@@ -1,85 +1,121 @@
+/*	Suketu Shah
+*	CS-511-A
+*	Assignment-1
+*	Practice with UNIX Process Mechanisms
+*/	
+
 #include "header.h"
 
-#define PIDS_SIZE 200
-#define BUFFER_SIZE 1
-
 typedef enum 
-{
+{ 
 	false, 
-	true
-} 	bool; 
+	true 
+}	bool;
 
 /* Modified sieve */
 bool isPrime(int number)
 {
 	int i;
-	if(number < 2) 
-		return false;
-
+	
 	if(number == 2) 
-		return true;
-
-	if(number % 2 == 0) 
-		return false;
-  
-	for(i = 3; (i*i)<=number; i+=2)
 	{
-		if(number % i == 0 ) 
+		return true;
+	}
+	
+	else if(number < 2 || number % 2 == 0)
+	{
 		return false;
+	}
+  
+	for(i = 3; (i*i) <= number; i += 2)
+	{
+		if(number % i == 0)
+		{
+			return false;
+		}
 	}
 
 	return true;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	int top, bottom, countOfArg, pid, i;
+	int top, bottom, exitcode, i, j, size, num;
+	pid_t pids[100];
 	int fd[2];
-	int buffer[BUFFER_SIZE];
-	pid_t storeAllPid[PIDS_SIZE];
-	
-	if(argc <= 1)
+	int readbuffer[1];
+
+	num = argc - 1;
+	bottom = 2;
+	top = 0; 
+
+	if(argc < 2)
 	{
 		printf("Usage: ./primes <increasing positive integers>\n");
 		return 0;
 	}
-	
-	bottom = 2;
-	top = strtol(argv[1], NULL, 10);
-	countOfArg = argc - 1;
+
+	top = strtol(argv[1], NULL, 10); /* We can assume good input on this */
 
 	pipe(fd);
-	
-	for(i = 0; i < countOfArg; ++i)
+  
+	for(i = 0; i < num; ++i)
 	{
-		if(i != 0)
+		if((pids[i] = fork()) < 0)
 		{
-			bottom = top + 1;
-			top = strtol(argv[i+1], NULL, 10);
-		}
-		
-		/* creating new children, will have to put this in loop */
-		pid = fork();
-	
-		/* Trouble */
-		if(pid < 0)
-		{
-			printf("Problem in function call fork. Your child didn't spawn!\n");
+			printf("ERROR: Could not fork child process!\n");
 			return 1;
 		}
-		
-		/* Parent part */
-		else if(pid > 0)
+    
+		else if(pids[i] == 0)
 		{
-			/* printf("child %i: bottom=%i, top=%i\n", getpid(), bottom, top); */
-			/* close(fd[0]); */
-		}
-		
-		/* children */
-		else
-		{
-			printf("child %i: bottom=%i, top=%i\n", getpid(), bottom, top);
+			printf("child %d: bottom=%d, top=%d\n",getpid(),bottom,top);
 			close(fd[0]);
+
+			for(j = bottom; j < top; j++)
+			{
+				if(isPrime(j))
+					write(fd[1], &j, sizeof(j));
+			}
+
+			exitcode = -1*getpid();
+			write(fd[1], &exitcode, sizeof(exitcode));
+			exit(0);
 		}
+    
+		bottom = top + 1;
+		
+		if(argv[i+2] != NULL) 
+		{
+			top = strtol(argv[i+2], NULL, 10);
+		}
+    }
+  
+	close(fd[1]);
+
+	while(num > 0)
+	{
+		if((size = read(fd[0], readbuffer, sizeof(readbuffer))) <= 0)
+		{
+			printf("ERROR: Failed to read from pipe!\n");
+			return 1;
+		}
+
+		/* decrement num iff we received a negative number */ 
+		if(readbuffer[0] < 0)
+		{
+			printf("Child %d exited cleanly.\n",(-1*readbuffer[0]));
+			num--;
+		}
+
+		if(readbuffer[0] == 0)
+		{
+			printf("ERROR: Child sent a bad exit code.\n");
+			return 1;
+		}
+
+		else if(readbuffer[0] > 0)
+			printf("%d is prime\n",readbuffer[0]);
 	}
+	return 0;
 }

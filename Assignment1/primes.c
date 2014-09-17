@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 		/* decrement num iff we received a negative number */ 
 		if(readbuffer[0] < 0)
 		{
-			printf("Child %d exited cleanly.\n",(-1*readbuffer[0]));
+			printf("child %d exited cleanly.\n",(-1*readbuffer[0]));
 			num--;
 		}
 

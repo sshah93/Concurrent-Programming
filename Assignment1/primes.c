@@ -38,11 +38,13 @@ bool isPrime(int number)
 		return true;
 	}
 	
+	/* case when the input is 1 or any even number other than 2 */
 	else if(number < 2 || number % 2 == 0)
 	{
 		return false;
 	}
-  
+	
+	/* checking for gcd */
 	for(i = 3; (i*i) <= number; i += 2)
 	{
 		if(number % i == 0)

@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
     
-		
+		/* the case for children */
 		else if(pids[i] == 0)
 		{
 			/* print the pid of the child and ranges it will be looking over for primes */

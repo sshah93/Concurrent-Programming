@@ -186,7 +186,9 @@ int main(int argc, char **argv)
 
 		/* print out the prime number from the pipe */
 		else if(readbuffer[0] > 0)
+		{
 			printf("%d is prime\n",readbuffer[0]);
+		}
 	} /* end of while loop */
 	
 	/* final return to terminate the program */

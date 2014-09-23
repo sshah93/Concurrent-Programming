@@ -17,6 +17,12 @@ int main(int argc, char**argv)
 
 	line_length = 10;
 	line = (char*) malloc(line_length + 1);
+	
+	if(line == NULL)
+	{
+		printf("Some error occured while trying to allocate memory using function malloc! \n");
+		exit(1);
+	}
 
 	if(argc != 3)
 	{
@@ -54,6 +60,8 @@ int main(int argc, char**argv)
 	{
 		printf("Some error occured in trying to close the output file! \n");
 	}
+
+	free(line);
 
 	return 0;
 }

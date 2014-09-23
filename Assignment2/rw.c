@@ -53,12 +53,12 @@ int main(int argc, char**argv)
 
 	if(fclose(input_file) == EOF)
 	{
-		printf("Some error occured in trying to close the input file! \n");
+		printf("Some error occured trying to close the input file! \n");
 	}
 
 	if(fclose(output_file) == EOF)
 	{
-		printf("Some error occured in trying to close the output file! \n");
+		printf("Some error occured trying to close the output file! \n");
 	}
 
 	free(line);

@@ -45,25 +45,14 @@ int main(int argc, char**argv)
 		fwrite(line, sizeof(char), bytes_read, output_file);
 	}
 
-	if(fclose(input_file) != EOF)
+	if(fclose(input_file) == EOF)
 	{
-		printf("Input file has been successfully closed \n");
+		printf("Some error occured in trying to close the input file! \n");
 	}
 
-	else
+	if(fclose(output_file) == EOF)
 	{
-		printf("Problems in trying to close the input file \n");
-	}
-
-	if(fclose(output_file) != EOF)
-	{
-
-		printf("Successfully closed the output file \n");
-	}
-
-	else
-	{
-		printf("Problems in trying to close the output file \n");
+		printf("Some error occured in trying to close the output file! \n");
 	}
 
 	return 0;

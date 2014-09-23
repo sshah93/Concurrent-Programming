@@ -25,6 +25,5 @@ fclean: clean
 	$(RM) $(PART1)
 	$(RM) $(PART2)
 	$(RM) $(PART3)
-	$(RM) output.txt
 
 re: fclean all

@@ -20,13 +20,16 @@ typedef struct	s_args
 
 t_args threadargs;
 
-void* drain(void* args)
+void* drainfunc(void* args)
 {
 	FILE* outfile;
-	int nbytes;
-	int index;
+	int nbytes, index, sem_wait_ret, sem_post_ret;
 
+	outfile = NULL;
 	index = 0;
+	nbytes = 0;
+	sem_wait_ret = 0;
+	sem_post_ret = 0;
 
 	outfile = fopen(threadargs.output_file, "w");
 
@@ -38,16 +41,60 @@ void* drain(void* args)
 
 	while(1)
 	{
+		sem_wait_ret = sem_wait(threadargs.mutex);
 
+		if(sem_wait_ret < 0)
+		{
+			printf("Drain thread failed on sem_wait!\n");
+			pthread_exit(0);
+		}
+
+		if(threadargs.buffer[index] == '\0')
+		{
+			printf("Drain thread: no new string in buffer!\n");
+		}
+
+		else if(strcmp(&threadargs.buffer[index], "QUIT") == 0)
+		{
+			printf("Drain thread: read [QUIT] from buffer!\n");
+			break;
+		}
+
+		else
+		{
+			nbytes = fputs(&threadargs.buffer[index], outfile);
+
+			if(!nbytes)
+			{
+				printf("Drain thread: wrote nothing on file!\n");
+			}
+
+			else
+			{	
+				printf("Drain thread: read [%s] from buffer!\n", &threadargs.buffer[index]);
+				index += strlen(&threadargs.buffer[index++]);
+			}
+		}
+
+		sem_post_ret = sem_post(threadargs.mutex);
+
+		if(sem_post_ret < 0)
+		{
+			printf("Drain thread failed on sem_post!\n");
+			pthread_exit(0);
+		}
 	}
+
+	pthread_exit(0);
 }
 
 int main(int argc, char**argv)
 {
 	FILE* infile;
 	char* input_file;
-	int index, i, sleeptime, buffsize;
+	int index, i, sleeptime, buffsize, pthread_create_ret, sem_init_ret, sem_wait_ret, sem_post_ret;
 	char* stripped;
+	pthread_t drain;
 	
 	buffsize = 65535;
 	index = 0;
@@ -70,5 +117,35 @@ int main(int argc, char**argv)
 	{
 		printf("Couldn't open the input file to read!"\n);
 		exit(1);
+	}
+
+	threadargs.buffer = calloc(buffsize, sizeof(char));
+	threadargs.mutex = (sem_t*) malloc(sizeof(sem_t));
+
+	sem_init_ret = sem_init(threadargs.mutex, 0, 1);
+
+	if(sem_init_ret < 0)
+	{
+		printf("Failed to initalize the semaphore!\n");
+		exit(1);
+	}
+
+	pthread_create_ret = pthread_create(&drain, NULL, drainfunc, &threadargs);
+	
+	if(pthread_create_ret != 0)
+	{
+		printf("Faild to create drain thread!\n");
+		exit(1);
+	}
+	
+	while(1)
+	{
+		sem_wait_ret = sem_wait(threadargs.mutex);
+
+		if(sem_wait_ret < 0)
+		{
+			printf("Fill thread failed on sem_wait!\n");
+			exit(1);
+		}
 	}
 }

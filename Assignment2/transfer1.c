@@ -72,7 +72,8 @@ void* drainfunc(void* args)
 			else
 			{	
 				printf("Drain thread: read [%s] from buffer!\n", &threadargs.buffer[index]);
-				index += strlen(&threadargs.buffer[index++]);
+				index += strlen(&threadargs.buffer[index]);
+				index++;
 			}
 		}
 
@@ -92,7 +93,7 @@ int main(int argc, char**argv)
 {
 	FILE* infile;
 	char* input_file;
-	int index, i, sleeptime, buffsize, pthread_create_ret, sem_init_ret, sem_wait_ret, sem_post_ret;
+	int index, i, sleeptime, buffsize, pthread_create_ret, sem_init_ret, sem_wait_ret, sem_post_ret, fclose_ret, sem_destroy_ret, pthread_join_ret;
 	char* stripped;
 	pthread_t drain;
 	
@@ -115,7 +116,7 @@ int main(int argc, char**argv)
 
 	if(infile == NULL)
 	{
-		printf("Couldn't open the input file to read!"\n);
+		printf("Couldn't open the input file to read!\n");
 		exit(1);
 	}
 
@@ -147,5 +148,73 @@ int main(int argc, char**argv)
 			printf("Fill thread failed on sem_wait!\n");
 			exit(1);
 		}
+
+		if((fgets(&threadargs.buffer[index], buffsize, infile)) == NULL)
+		{
+			strcpy(&threadargs.buffer[index], "QUIT");
+			printf("Fill thread: wrote [%s] into buffer!\n", &threadargs.buffer[index]);
+
+			sem_post_ret = sem_post(threadargs.mutex);
+
+			if(sem_post_ret < 0)
+			{
+				printf("Fill thread failed on sem_post!\n");
+				exit(1);
+			}
+
+			break;
+		}
+
+		stripped = &threadargs.buffer[index];
+
+		for(i = 0; stripped[i] != '\0'; i++)
+		{
+			if(stripped[i] == '\n')
+			{
+				stripped[++i] = '\0';
+			}
+		}
+
+		strcpy(&threadargs.buffer[index], stripped);
+
+		printf("Fill thread: wrote [%s] into buffer!\n", &threadargs.buffer[index]);
+
+		index += strlen(&threadargs.buffer[index]) + 1;
+
+		sem_post_ret = sem_post(threadargs.mutex);
+
+		if(sem_post_ret < 0)
+		{
+			printf("Fill thread failed on sem_post!\n");
+			exit(1);
+		}
+
+		usleep(sleeptime);
 	}
+
+	fclose_ret = fclose(infile);
+
+	if(fclose_ret != 0)
+	{
+		printf("Failed to close the input file!\n");
+		exit(1);
+	}
+
+	pthread_join_ret = pthread_join(drain, NULL);
+
+	if(pthread_join_ret != 0)
+	{
+		printf("Failed to join the threads!\n");
+		exit(1);
+	}
+
+	sem_destroy_ret = sem_destroy(threadargs.mutex);
+
+	if(sem_destroy_ret < 0)
+	{
+		printf("Failed to destroy the mutex!\n");
+		exit(1);
+	}
+	
+	return 0;
 }

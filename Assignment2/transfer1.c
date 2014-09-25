@@ -135,7 +135,7 @@ int main(int argc, char**argv)
 	
 	if(pthread_create_ret != 0)
 	{
-		printf("Faild to create drain thread!\n");
+		printf("Failed to create drain thread!\n");
 		exit(1);
 	}
 	

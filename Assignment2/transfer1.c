@@ -56,7 +56,7 @@ void* drainfunc(void* args)
 
 		else if(strcmp(&threadargs.buffer[index], "QUIT") == 0)
 		{
-			printf("Drain thread: read [QUIT] from buffer!\n");
+			printf("Drain thread: read [QUIT] from buffer\n");
 			break;
 		}
 
@@ -71,7 +71,7 @@ void* drainfunc(void* args)
 
 			else
 			{	
-				printf("Drain thread: read [%s] from buffer!\n", &threadargs.buffer[index]);
+				printf("Drain thread: read [%s] from buffer\n", &threadargs.buffer[index]);
 				index += strlen(&threadargs.buffer[index]);
 				index++;
 			}
@@ -152,7 +152,7 @@ int main(int argc, char**argv)
 		if((fgets(&threadargs.buffer[index], buffsize, infile)) == NULL)
 		{
 			strcpy(&threadargs.buffer[index], "QUIT");
-			printf("Fill thread: wrote [%s] into buffer!\n", &threadargs.buffer[index]);
+			printf("Fill thread: wrote %s into buffer\n", &threadargs.buffer[index]);
 
 			sem_post_ret = sem_post(threadargs.mutex);
 
@@ -177,7 +177,7 @@ int main(int argc, char**argv)
 
 		strcpy(&threadargs.buffer[index], stripped);
 
-		printf("Fill thread: wrote [%s] into buffer!\n", &threadargs.buffer[index]);
+		printf("Fill thread: wrote [%s] into buffer\n", &threadargs.buffer[index]);
 
 		index += strlen(&threadargs.buffer[index]) + 1;
 
@@ -188,8 +188,11 @@ int main(int argc, char**argv)
 			printf("Fill thread failed on sem_post!\n");
 			exit(1);
 		}
-
-		usleep(sleeptime);
+		
+		if(sleeptime != 0)
+		{
+			usleep(sleeptime);
+		}
 	}
 
 	fclose_ret = fclose(infile);

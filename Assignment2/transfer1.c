@@ -13,7 +13,7 @@
 
 typedef struct	s_args
 {
-	sem_t* 	mutex;
+	sem_t* 	semaphore;
 	char* 	buffer;
 	char* 	output_file;
 }		t_args;
@@ -41,7 +41,7 @@ void* drainfunc(void* args)
 
 	while(1)
 	{
-		sem_wait_ret = sem_wait(threadargs.mutex);
+		sem_wait_ret = sem_wait(threadargs.semaphore);
 
 		if(sem_wait_ret < 0)
 		{
@@ -77,7 +77,7 @@ void* drainfunc(void* args)
 			}
 		}
 
-		sem_post_ret = sem_post(threadargs.mutex);
+		sem_post_ret = sem_post(threadargs.semaphore);
 
 		if(sem_post_ret < 0)
 		{
@@ -121,9 +121,9 @@ int main(int argc, char**argv)
 	}
 
 	threadargs.buffer = calloc(buffsize, sizeof(char));
-	threadargs.mutex = (sem_t*) malloc(sizeof(sem_t));
+	threadargs.semaphore = (sem_t*) malloc(sizeof(sem_t));
 
-	sem_init_ret = sem_init(threadargs.mutex, 0, 1);
+	sem_init_ret = sem_init(threadargs.semaphore, 0, 1);
 
 	if(sem_init_ret < 0)
 	{
@@ -141,7 +141,7 @@ int main(int argc, char**argv)
 	
 	while(1)
 	{
-		sem_wait_ret = sem_wait(threadargs.mutex);
+		sem_wait_ret = sem_wait(threadargs.semaphore);
 
 		if(sem_wait_ret < 0)
 		{
@@ -154,7 +154,7 @@ int main(int argc, char**argv)
 			strcpy(&threadargs.buffer[index], "QUIT");
 			printf("Fill thread: wrote %s into buffer\n", &threadargs.buffer[index]);
 
-			sem_post_ret = sem_post(threadargs.mutex);
+			sem_post_ret = sem_post(threadargs.semaphore);
 
 			if(sem_post_ret < 0)
 			{
@@ -181,7 +181,7 @@ int main(int argc, char**argv)
 
 		index += strlen(&threadargs.buffer[index]) + 1;
 
-		sem_post_ret = sem_post(threadargs.mutex);
+		sem_post_ret = sem_post(threadargs.semaphore);
 
 		if(sem_post_ret < 0)
 		{
@@ -211,11 +211,11 @@ int main(int argc, char**argv)
 		exit(1);
 	}
 
-	sem_destroy_ret = sem_destroy(threadargs.mutex);
+	sem_destroy_ret = sem_destroy(threadargs.semaphore);
 
 	if(sem_destroy_ret < 0)
 	{
-		printf("Failed to destroy the mutex!\n");
+		printf("Failed to destroy the semaphore!\n");
 		exit(1);
 	}
 	

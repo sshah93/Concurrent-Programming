@@ -13,8 +13,8 @@
 
 typedef struct	s_args
 {
-	sem_t* 	mutex1;
-	sem_t*	mutex2;
+	sem_t* 	semaphore1;
+	sem_t*	semaphore2;
 	char* 	buffer;
 	char* 	output_file;
 }		t_args;
@@ -42,7 +42,7 @@ void* drainfunc(void* args)
 
 	while(1)
 	{
-		sem_wait_ret = sem_wait(threadargs.mutex2);
+		sem_wait_ret = sem_wait(threadargs.semaphore2);
 
 		if(sem_wait_ret < 0)
 		{
@@ -78,7 +78,7 @@ void* drainfunc(void* args)
 			}
 		}
 
-		sem_post_ret = sem_post(threadargs.mutex1);
+		sem_post_ret = sem_post(threadargs.semaphore1);
 
 		if(sem_post_ret < 0)
 		{
@@ -123,10 +123,10 @@ int main(int argc, char**argv)
 	}
 
 	threadargs.buffer = calloc(buffsize, sizeof(char));
-	threadargs.mutex1 = (sem_t*) malloc(sizeof(sem_t));
-	threadargs.mutex2 = (sem_t*) malloc(sizeof(sem_t));
+	threadargs.semaphore1 = (sem_t*) malloc(sizeof(sem_t));
+	threadargs.semaphore2 = (sem_t*) malloc(sizeof(sem_t));
 
-	sem_init_ret = sem_init(threadargs.mutex1, 0, 1);
+	sem_init_ret = sem_init(threadargs.semaphore1, 0, 1);
 
 	if(sem_init_ret < 0)
 	{
@@ -134,7 +134,7 @@ int main(int argc, char**argv)
 		exit(1);
 	}
 
-	sem_init_ret = sem_init(threadargs.mutex2, 0, 0);
+	sem_init_ret = sem_init(threadargs.semaphore2, 0, 0);
 
 	if(sem_init_ret < 0)
 	{
@@ -152,7 +152,7 @@ int main(int argc, char**argv)
 	
 	while(1)
 	{
-		sem_wait_ret = sem_wait(threadargs.mutex1);
+		sem_wait_ret = sem_wait(threadargs.semaphore1);
 
 		if(sem_wait_ret < 0)
 		{
@@ -165,7 +165,7 @@ int main(int argc, char**argv)
 			strcpy(&threadargs.buffer[index], "QUIT");
 			printf("Fill thread: wrote %s into buffer\n", &threadargs.buffer[index]);
 
-			sem_post_ret = sem_post(threadargs.mutex2);
+			sem_post_ret = sem_post(threadargs.semaphore2);
 
 			if(sem_post_ret < 0)
 			{
@@ -192,7 +192,7 @@ int main(int argc, char**argv)
 
 		index += strlen(&threadargs.buffer[index]) + 1;
 
-		sem_post_ret = sem_post(threadargs.mutex2);
+		sem_post_ret = sem_post(threadargs.semaphore2);
 
 		if(sem_post_ret < 0)
 		{
@@ -219,7 +219,7 @@ int main(int argc, char**argv)
 		exit(1);
 	}
 
-	sem_destroy_ret = sem_destroy(threadargs.mutex1);
+	sem_destroy_ret = sem_destroy(threadargs.semaphore1);
 
 	if(sem_destroy_ret < 0)
 	{
@@ -227,7 +227,7 @@ int main(int argc, char**argv)
 		exit(1);
 	}
 
-	sem_destroy_ret = sem_destroy(threadargs.mutex2);
+	sem_destroy_ret = sem_destroy(threadargs.semaphore2);
 
 	if(sem_destroy_ret < 0)
 	{

@@ -6,7 +6,7 @@ SRC2 = transfer1.c
 SRC3 = transfer2.c
 OBJ = $(SRC:.c=.o)
 CERRORS = -pedantic-errors
-LIBS = -lpthread -ggdb
+LIBS = -lpthread
 RM = rm -f
 
 all: $(OBJ)

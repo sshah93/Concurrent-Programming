@@ -1,5 +1,5 @@
-NAME = primes
-SRC = primes.c
+NAME = trafficmgr
+SRC = trafficmgr.c monitor.c q.c
 OBJ = $(SRC:.c=.o)
 
 CERRORS = -pedantic-errors

@@ -1,12 +1,11 @@
 NAME = trafficmgr
 SRC = trafficmgr.c monitor.c q.c
 OBJ = $(SRC:.c=.o)
-
-CERRORS = -pedantic-errors
+CFLAGS += -Wall -pedantic-errors
 RM = rm -f
 
 all: $(OBJ)
-	gcc -Wall $(CERRORS) $(SRC) -o $(NAME)
+	$(CC) $(CFLAGS) $(SRC) -o $(NAME)
 
 clean:
 	$(RM) *.o

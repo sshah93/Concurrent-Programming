@@ -55,7 +55,7 @@ void monitor_init()
 	}
 }
 
-void monitor_arrive(cart_t* cart)
+void monitor_arrive(struct cart_t* cart)
 {
 	if(pthread_mutex_lock(&lock) != 0)
 	{
@@ -63,7 +63,7 @@ void monitor_arrive(cart_t* cart)
 		exit(1);
 	}
 
-	printf("Cart %s arrived at intersection!\n", cart->num);
+	printf("Cart %i arrived at intersection!\n", cart->num);
 
 	while(directions[direction] != cart->dir)
 	{
@@ -103,28 +103,26 @@ void monitor_arrive(cart_t* cart)
 				printf("Something is not correct here!\n");
 		}
 
-		printf("Cart %s allowed to proceed into intersection!\n", cart->num);
+		printf("Cart %i allowed to proceed into intersection!\n", cart->num);
 	}
 }
 
-void monitor_cross(cart_t* cart)
+void monitor_cross(struct cart_t* cart)
 {
 	q_cartHasEntered(directions[direction]);
 
-	printf("Cart %s entered the intersection!\n", cart->num);
+	printf("Cart %i entered the intersection!\n", cart->num);
 
 	usleep(10000000);
 
-	printf("Cart %s crosses the intersection!\n", cart->num);
+	printf("Cart %i crosses the intersection!\n", cart->num);
 }
 
-void monitor_leave(cart_t* cart)
+void monitor_leave(struct cart_t* cart)
 {
-	empty = 0;
-
-	printf("Cart %s leaves the intersection!\n", cart->num);
-
 	unsigned int i;
+
+	printf("Cart %i leaves the intersection!\n", cart->num);
 
 	/* Check directions to the right for waiting carts */
 	for (i = 0; i < 4; i++)
@@ -138,28 +136,28 @@ void monitor_leave(cart_t* cart)
 				case Q_NORTH:
 					if(pthread_cond_signal(&north) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_NORTH)
+						printf("Thread %c signals thread %c", cart->dir, Q_NORTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_WEST:
 					if(pthread_cond_signal(&west) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_WEST)
+						printf("Thread %c signals thread %c", cart->dir, Q_WEST);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_SOUTH:
 					if(pthread_cond_signal(&south) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_SOUTH)
+						printf("Thread %c signals thread %c", cart->dir, Q_SOUTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_EAST:
 					if(pthread_cond_signal(&east) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_EAST)
+						printf("Thread %c signals thread %c", cart->dir, Q_EAST);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
@@ -183,27 +181,27 @@ void monitor_shutdown()
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(north) != 0)
+	if(pthread_cond_destroy(&north) != 0)
 	{
-		fprintf(stderr, "Failed to destroy the conditional variable!\n", );
+		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(west) != 0)
+	if(pthread_cond_destroy(&west) != 0)
 	{
-		fprintf(stderr, "Failed to destroy the conditional variable!\n", );
+		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(south) != 0)
+	if(pthread_cond_destroy(&south) != 0)
 	{
-		fprintf(stderr, "Failed to destroy the conditional variable!\n", );
+		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(east) != 0)
+	if(pthread_cond_destroy(&east) != 0)
 	{
-		fprintf(stderr, "Failed to destroy the conditional variable!\n", );
+		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 }

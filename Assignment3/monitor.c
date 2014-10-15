@@ -1,3 +1,14 @@
+/*
+ * CS-511-A
+ * Professor Duchamp
+ *
+ * 10/19/14
+ * Authors: Suketu Shah (sshah75) & Michael Peleshenko (mpeleshe)
+ *
+ * I pledge my honor that I have abided by the Stevens Honor System.
+ *
+ * Assignment 3
+ */
 #include "monitor.h"
 
 void monitor_init()

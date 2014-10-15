@@ -57,6 +57,8 @@ void monitor_init()
 			break;
 		}
 	}
+	/* First direction will be set in monitor_arrive */
+	gl_env.direction = -1;
 
 	/* Set interesection to empty state */
 	gl_env.empty = 1;
@@ -64,6 +66,8 @@ void monitor_init()
 
 void monitor_arrive(struct cart_t* cart)
 {
+	unsigned int i;
+
 	if(pthread_mutex_lock(&gl_env.lock) != 0)
 	{
 		fprintf(stderr, "Couldn't get the lock!\n");
@@ -71,6 +75,19 @@ void monitor_arrive(struct cart_t* cart)
 	}
 
 	printf("Cart %i from direction %c arrives at intersection!\n", cart->num, cart->dir);
+
+	/* Set initial direction based on first cart to arrive */
+	if (gl_env.direction == -1)
+	{
+		for (i = 0; i < 4; i++)
+		{
+			if (cart->dir == gl_env.directions[i])
+			{
+				gl_env.direction = i;
+				break;
+			}
+		}
+	}
 
 	while(gl_env.directions[gl_env.direction] != cart->dir)
 	{

@@ -10,13 +10,19 @@
 #
 
 NAME = trafficmgr
-SRC = trafficmgr.c monitor.c q.c
+SRC = q.c \
+	monitor.c \
+	trafficmgr.c
 OBJ = $(SRC:.c=.o)
+
+CC = gcc
 CFLAGS += -Wall -pedantic-errors
+LIBS = -lpthread
+
 RM = rm -f
 
 all: $(OBJ)
-	$(CC) $(CFLAGS) $(SRC) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ) $(LIBS) -o $(NAME)
 
 clean:
 	$(RM) *.o

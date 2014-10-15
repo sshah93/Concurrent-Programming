@@ -1,5 +1,4 @@
-/*
- * CS-511-A
+/* CS-511-A
  * Professor Duchamp
  *
  * 10/19/14
@@ -13,6 +12,8 @@
 
 void monitor_init()
 {
+	unsigned int i;
+
 	if(pthread_mutex_init(&lock, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the mutex!\n");
@@ -48,21 +49,13 @@ void monitor_init()
 	directions[2] = Q_SOUTH;
 	directions[3] = Q_EAST;
 
-	if(q_cartIsWaiting(Q_NORTH))
+	for (i = 0; i < 4; ++i)
 	{
-		direction = 0;
-	}
-	else if(q_cartIsWaiting(Q_WEST))
-	{
-		direction = 1;
-	}
-	else if(q_cartIsWaiting(Q_SOUTH))
-	{
-		direction = 2;
-	}
-	else if(q_cartIsWaiting(Q_EAST))
-	{
-		direction = 3;
+		if(q_cartIsWaiting(directions[i]))
+		{
+			direction = i;
+			break;
+		}
 	}
 }
 
@@ -78,7 +71,7 @@ void monitor_arrive(struct cart_t* cart)
 
 	while(directions[direction] != cart->dir)
 	{
-		printf("Cart has to wait before it can enter the intersection!\n");
+		printf("Cart %i has to wait before it can enter the intersection from %c direction!\n", cart->num, cart->dir);
 
 		switch(cart->dir)
 		{
@@ -122,18 +115,18 @@ void monitor_cross(struct cart_t* cart)
 {
 	q_cartHasEntered(directions[direction]);
 
-	printf("Cart %i entered the intersection!\n", cart->num);
-
+	printf("Cart %i entered the intersection from %c direction!\n", cart->num, cart->dir);
+	
 	usleep(10000000);
 
-	printf("Cart %i crosses the intersection!\n", cart->num);
+	printf("Cart %i crosses the intersection from %c directon!\n", cart->num, cart->dir);
 }
 
 void monitor_leave(struct cart_t* cart)
 {
 	unsigned int i;
 
-	printf("Cart %i leaves the intersection!\n", cart->num);
+	printf("Cart %i leaves the intersection from %c direction!\n", cart->num, cart->dir);
 
 	/* Check directions to the right for waiting carts */
 	for (i = 0; i < 4; i++)

@@ -19,18 +19,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-pthread_mutex_t lock;
+typedef struct s_env
+{
+	pthread_mutex_t lock;
 
-/* Condition Variables */
-pthread_cond_t north;
-pthread_cond_t west;
-pthread_cond_t south;
-pthread_cond_t east;
+	/* Condition Variables */
+	pthread_cond_t north;
+	pthread_cond_t west;
+	pthread_cond_t south;
+	pthread_cond_t east;
 
+	unsigned int empty;
+	unsigned int direction;
+	char directions[4];
+}	t_env;
 
-unsigned int direction;
-char directions[4];
+t_env gl_env;
 
+extern int isIntersectionEmpty();
 extern void monitor_init();
 extern void monitor_arrive(struct cart_t* cart);
 extern void monitor_cross(struct cart_t* cart);

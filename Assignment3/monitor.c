@@ -57,6 +57,9 @@ void monitor_init()
 			break;
 		}
 	}
+
+	/* Set interesection to empty state */
+	gl_env.empty = 1;
 }
 
 void monitor_arrive(struct cart_t* cart)
@@ -76,38 +79,63 @@ void monitor_arrive(struct cart_t* cart)
 		switch(cart->dir)
 		{
 			case Q_NORTH:
+			{
 				if(pthread_cond_wait(&gl_env.north, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
 				}
-
-			case Q_SOUTH:
-				if(pthread_cond_wait(&gl_env.south, &gl_env.lock) != 0)
-				{
-					fprintf(stderr, "Wait function messed up!\n");
-					exit(1);
-				}
-
-			case Q_EAST:
-				if(pthread_cond_wait(&gl_env.east, &gl_env.lock) != 0)
-				{
-					fprintf(stderr, "Wait function messed up!\n");
-					exit(1);
-				}
+				break;
+			}
 
 			case Q_WEST:
+			{
 				if(pthread_cond_wait(&gl_env.west, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
 				}
+				break;
+			}
+
+			case Q_SOUTH:
+			{
+				if(pthread_cond_wait(&gl_env.south, &gl_env.lock) != 0)
+				{
+					fprintf(stderr, "Wait function messed up!\n");
+					exit(1);
+				}
+				break;
+			}
+
+			case Q_EAST:
+			{
+				if(pthread_cond_wait(&gl_env.east, &gl_env.lock) != 0)
+				{
+					fprintf(stderr, "Wait function messed up!\n");
+					exit(1);
+				}
+				break;
+			}
 
 			default:
-				printf("Something is not correct here!\n");
+			{
+				fprintf(stderr, "Something is not correct here!\n");
+				exit(1);
+			}
 		}
 
 		printf("Cart %i from direction %c allowed to proceed into intersection!\n", cart->num, cart->dir);
+	}
+
+	/* Set intersection state to be occupied */
+	gl_env.empty = 0;
+
+	/* Drop the lock */
+	if(pthread_mutex_unlock(&gl_env.lock) != 0)
+	{
+		fprintf(stderr, "Failed to unlock the mutex!\n");
+		exit(1);
 	}
 }
 
@@ -126,10 +154,20 @@ void monitor_leave(struct cart_t* cart)
 {
 	unsigned int i;
 
+	/* Get the lock */
+	if(pthread_mutex_lock(&gl_env.lock) != 0)
+	{
+		fprintf(stderr, "Couldn't get the lock!\n");
+		exit(1);
+	}
+
 	printf("Cart %i from direction %c leaves intersection!\n", cart->num, cart->dir);
 
+	/* Set intersection state to be empty */
+	gl_env.empty = 1;
+
 	/* Check directions to the right for waiting carts */
-	for (i = 0; i < 4; i++)
+	for (i = 1; i <= 4; i++)
 	{
 		if(q_cartIsWaiting(gl_env.directions[(gl_env.direction + i) % 4]))
 		{
@@ -138,38 +176,59 @@ void monitor_leave(struct cart_t* cart)
 			switch(gl_env.directions[gl_env.direction])
 			{
 				case Q_NORTH:
+				{
+					printf("Thread %c signals thread %c\n", cart->dir, Q_NORTH);
 					if(pthread_cond_signal(&gl_env.north) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_NORTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
+					break;
+				}
 				case Q_WEST:
+				{
+					printf("Thread %c signals thread %c\n", cart->dir, Q_WEST);
 					if(pthread_cond_signal(&gl_env.west) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_WEST);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
+					break;
+				}
 				case Q_SOUTH:
+				{
+					printf("Thread %c signals thread %c\n", cart->dir, Q_SOUTH);
 					if(pthread_cond_signal(&gl_env.south) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_SOUTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
+					break;
+				}
 				case Q_EAST:
+				{
+					printf("Thread %c signals thread %c\n", cart->dir, Q_EAST);
 					if(pthread_cond_signal(&gl_env.east) != 0)
 					{
-						printf("Thread %c signals thread %c", cart->dir, Q_EAST);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
+					break;
+				}
+
+				default:
+				{
+					fprintf(stderr, "Something went wrong\n");
+					exit(1);
+				}
 			}
+
+			/* Break when a waiting cart is found */
 			break;
 		}
 	}
 
+	/* Drop the lock */
 	if(pthread_mutex_unlock(&gl_env.lock) != 0)
 	{
 		fprintf(stderr, "Failed to unlock the mutex!\n");

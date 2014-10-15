@@ -14,46 +14,46 @@ void monitor_init()
 {
 	unsigned int i;
 
-	if(pthread_mutex_init(&lock, NULL) != 0)
+	if(pthread_mutex_init(&gl_env.lock, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the mutex!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_init(&north, NULL) != 0)
+	if(pthread_cond_init(&gl_env.north, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the north conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_init(&south, NULL) != 0)
+	if(pthread_cond_init(&gl_env.south, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the south conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_init(&east, NULL) != 0)
+	if(pthread_cond_init(&gl_env.east, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the east conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_init(&west, NULL) != 0)
+	if(pthread_cond_init(&gl_env.west, NULL) != 0)
 	{
 		fprintf(stderr, "Failed to initialize the west conditional variable!\n");
 		exit(1);
 	}
 
-	directions[0] = Q_NORTH;
-	directions[1] = Q_WEST;
-	directions[2] = Q_SOUTH;
-	directions[3] = Q_EAST;
+	gl_env.directions[0] = Q_NORTH;
+	gl_env.directions[1] = Q_WEST;
+	gl_env.directions[2] = Q_SOUTH;
+	gl_env.directions[3] = Q_EAST;
 
 	for (i = 0; i < 4; ++i)
 	{
-		if(q_cartIsWaiting(directions[i]))
+		if(q_cartIsWaiting(gl_env.directions[i]))
 		{
-			direction = i;
+			gl_env.direction = i;
 			break;
 		}
 	}
@@ -61,43 +61,43 @@ void monitor_init()
 
 void monitor_arrive(struct cart_t* cart)
 {
-	if(pthread_mutex_lock(&lock) != 0)
+	if(pthread_mutex_lock(&gl_env.lock) != 0)
 	{
 		fprintf(stderr, "Couldn't get the lock!\n");
 		exit(1);
 	}
 
-	printf("Cart %i arrived at intersection!\n", cart->num);
+	printf("Cart %i from direction %c arrives at intersection!\n", cart->num, cart->dir);
 
-	while(directions[direction] != cart->dir)
+	while(gl_env.directions[gl_env.direction] != cart->dir)
 	{
-		printf("Cart %i has to wait before it can enter the intersection from %c direction!\n", cart->num, cart->dir);
+		printf("Cart %i from direction %c must wait before entering intersection!\n", cart->num, cart->dir);
 
 		switch(cart->dir)
 		{
 			case Q_NORTH:
-				if(pthread_cond_wait(&north, &lock) != 0)
+				if(pthread_cond_wait(&gl_env.north, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
 				}
 
 			case Q_SOUTH:
-				if(pthread_cond_wait(&south, &lock) != 0)
+				if(pthread_cond_wait(&gl_env.south, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
 				}
 
 			case Q_EAST:
-				if(pthread_cond_wait(&east, &lock) != 0)
+				if(pthread_cond_wait(&gl_env.east, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
 				}
 
 			case Q_WEST:
-				if(pthread_cond_wait(&west, &lock) != 0)
+				if(pthread_cond_wait(&gl_env.west, &gl_env.lock) != 0)
 				{
 					fprintf(stderr, "Wait function messed up!\n");
 					exit(1);
@@ -107,59 +107,59 @@ void monitor_arrive(struct cart_t* cart)
 				printf("Something is not correct here!\n");
 		}
 
-		printf("Cart %i allowed to proceed into intersection!\n", cart->num);
+		printf("Cart %i from direction %c allowed to proceed into intersection!\n", cart->num, cart->dir);
 	}
 }
 
 void monitor_cross(struct cart_t* cart)
 {
-	q_cartHasEntered(directions[direction]);
+	q_cartHasEntered(gl_env.directions[gl_env.direction]);
 
-	printf("Cart %i entered the intersection from %c direction!\n", cart->num, cart->dir);
+	printf("Cart %i from direction %c enters intersection!\n", cart->num, cart->dir);
 	
 	usleep(10000000);
 
-	printf("Cart %i crosses the intersection from %c directon!\n", cart->num, cart->dir);
+	printf("Cart %i from direction %c crosses intersection!\n", cart->num, cart->dir);
 }
 
 void monitor_leave(struct cart_t* cart)
 {
 	unsigned int i;
 
-	printf("Cart %i leaves the intersection from %c direction!\n", cart->num, cart->dir);
+	printf("Cart %i from direction %c leaves intersection!\n", cart->num, cart->dir);
 
 	/* Check directions to the right for waiting carts */
 	for (i = 0; i < 4; i++)
 	{
-		if(q_cartIsWaiting(directions[(direction + i) % 4]))
+		if(q_cartIsWaiting(gl_env.directions[(gl_env.direction + i) % 4]))
 		{
-			direction = (direction + i) % 4;
+			gl_env.direction = (gl_env.direction + i) % 4;
 
-			switch(directions[direction])
+			switch(gl_env.directions[gl_env.direction])
 			{
 				case Q_NORTH:
-					if(pthread_cond_signal(&north) != 0)
+					if(pthread_cond_signal(&gl_env.north) != 0)
 					{
 						printf("Thread %c signals thread %c", cart->dir, Q_NORTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_WEST:
-					if(pthread_cond_signal(&west) != 0)
+					if(pthread_cond_signal(&gl_env.west) != 0)
 					{
 						printf("Thread %c signals thread %c", cart->dir, Q_WEST);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_SOUTH:
-					if(pthread_cond_signal(&south) != 0)
+					if(pthread_cond_signal(&gl_env.south) != 0)
 					{
 						printf("Thread %c signals thread %c", cart->dir, Q_SOUTH);
 						fprintf(stderr, "Failed to signal!\n");
 						exit(1);
 					}
 				case Q_EAST:
-					if(pthread_cond_signal(&east) != 0)
+					if(pthread_cond_signal(&gl_env.east) != 0)
 					{
 						printf("Thread %c signals thread %c", cart->dir, Q_EAST);
 						fprintf(stderr, "Failed to signal!\n");
@@ -170,7 +170,7 @@ void monitor_leave(struct cart_t* cart)
 		}
 	}
 
-	if(pthread_mutex_unlock(&lock) != 0)
+	if(pthread_mutex_unlock(&gl_env.lock) != 0)
 	{
 		fprintf(stderr, "Failed to unlock the mutex!\n");
 		exit(1);
@@ -179,31 +179,31 @@ void monitor_leave(struct cart_t* cart)
 
 void monitor_shutdown()
 {
-	if(pthread_mutex_destroy(&lock) != 0)
+	if(pthread_mutex_destroy(&gl_env.lock) != 0)
 	{
 		fprintf(stderr, "Failed to destroy the mutex!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(&north) != 0)
+	if(pthread_cond_destroy(&gl_env.north) != 0)
 	{
 		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(&west) != 0)
+	if(pthread_cond_destroy(&gl_env.west) != 0)
 	{
 		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(&south) != 0)
+	if(pthread_cond_destroy(&gl_env.south) != 0)
 	{
 		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);
 	}
 
-	if(pthread_cond_destroy(&east) != 0)
+	if(pthread_cond_destroy(&gl_env.east) != 0)
 	{
 		fprintf(stderr, "Failed to destroy the conditional variable!\n");
 		exit(1);

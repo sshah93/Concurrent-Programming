@@ -89,12 +89,24 @@ int main(int argc, char *argv[])
 	{
 		if(pthread_create(&cart_threads[i], NULL, process_carts, (void *) &dirs[i]) != 0)
 		{
-			fprintf(stderr, "Failed to create fill thread\n");
+			fprintf(stderr, "Failed to create cart thread %c\n", dirs[i]);
+			exit(1);
+		}
+	}
+
+	/* Join threads */
+	for (i = 0; i < 4; i++)
+	{
+		if(pthread_join(cart_threads[i], NULL) != 0)
+		{
+			fprintf(stderr, "Failed to join thread\n");
 			exit(1);
 		}
 	}
 
 	/* Clean up */
+	q_shutdown();
+	monitor_shutdown();
 
 	return 0;
 }

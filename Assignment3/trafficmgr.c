@@ -14,6 +14,11 @@
 #include "monitor.h"
 #include <string.h>
 
+#define THREADS 4 /* Number of threads processing carts */
+
+/* Barrier for threads */
+pthread_barrier_t barrier;
+
 /* 
  * Method for threads processing cart queues
  */
@@ -35,6 +40,9 @@ void *process_carts(void *arg)
 		monitor_leave(cart);
 		cart = q_getCart(direction);
 	}
+
+	pthread_barrier_wait(&barrier);
+
 	printf("thread for direction %c exits\n", direction);
 
 	pthread_exit(NULL);
@@ -79,13 +87,16 @@ int main(int argc, char *argv[])
 	/* Initialize the intersection monitor */
 	monitor_init();
 
+	/* Initialize barrier for threads to end at the same time */
+	pthread_barrier_init(&barrier, NULL, THREADS);
+
 	/* Initialize threads to process cart queues */
 	dirs[0] = Q_NORTH;
 	dirs[1] = Q_WEST;
 	dirs[2] = Q_SOUTH;
 	dirs[3] = Q_EAST;
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < THREADS; i++)
 	{
 		if(pthread_create(&cart_threads[i], NULL, process_carts, (void *) &dirs[i]) != 0)
 		{
@@ -95,7 +106,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Join threads */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < THREADS; i++)
 	{
 		if(pthread_join(cart_threads[i], NULL) != 0)
 		{
@@ -107,6 +118,11 @@ int main(int argc, char *argv[])
 	/* Clean up */
 	q_shutdown();
 	monitor_shutdown();
+	if(pthread_barrier_destroy(&barrier) != 0)
+	{
+		fprintf(stderr, "Failed to destroy barrier\n");
+		exit(1);
+	}
 
 	return 0;
 }

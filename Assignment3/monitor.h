@@ -29,9 +29,8 @@ typedef struct s_env
 	pthread_cond_t south;
 	pthread_cond_t east;
 
-	unsigned int empty;
-	unsigned int direction;
-	char directions[4];
+	char directions[4];				/* Directions array for right-hand rule */
+	unsigned int direction;			/* Index into directions */
 }	t_env;
 
 t_env gl_env;

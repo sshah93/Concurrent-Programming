@@ -17,7 +17,7 @@
 #define THREADS 4 /* Number of threads processing carts */
 
 /* Barrier for threads */
-pthread_barrier_t barrier;
+static pthread_barrier_t barrier;
 
 /* 
  * Method for threads processing cart queues

@@ -35,7 +35,6 @@ typedef struct s_env
 
 t_env gl_env;
 
-extern int isIntersectionEmpty();
 extern void monitor_init();
 extern void monitor_arrive(struct cart_t* cart);
 extern void monitor_cross(struct cart_t* cart);

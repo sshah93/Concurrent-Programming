@@ -10,6 +10,11 @@
  */
 #include "monitor.h"
 
+/*
+ *	function to initialize the monitor
+ *	Pre: function takes no parameter
+ *	Post: function has no return value
+ */
 void monitor_init()
 {
 	/* Initialize mutex and condition variables */
@@ -53,6 +58,11 @@ void monitor_init()
 	gl_env.direction = -1;
 }
 
+/*
+ *	function to control the actions of a cart before it enters the intersection
+ *	Pre: function takes an object of type cart_t*
+ *	Post: function has no return value
+ */
 void monitor_arrive(struct cart_t* cart)
 {
 	unsigned int i;
@@ -145,6 +155,11 @@ void monitor_arrive(struct cart_t* cart)
 	}
 }
 
+/*
+ *	function to control the actions of a cart as it crosses the intersection
+ *	Pre: function takes an object of type cart_t*
+ *	Post: function has no return value
+ */
 void monitor_cross(struct cart_t* cart)
 {
 	/* Get the lock */
@@ -171,6 +186,11 @@ void monitor_cross(struct cart_t* cart)
 	}
 }
 
+/*
+ *	function to control the actions of a cart after it passes through the intersection
+ *	Pre: function takes an object of type cart_t*
+ *	Post: function has no return value
+ */
 void monitor_leave(struct cart_t* cart)
 {
 	unsigned int i;
@@ -255,6 +275,11 @@ void monitor_leave(struct cart_t* cart)
 	}
 }
 
+/*
+ *	function to free the monitor resources
+ *	Pre: function takes no parameters
+ *	Post: function has no return value
+ */
 void monitor_shutdown()
 {
 	/* Destroy mutex and condition variables */

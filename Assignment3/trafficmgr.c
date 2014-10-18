@@ -20,7 +20,9 @@
 static pthread_barrier_t barrier;
 
 /* 
- * Method for threads processing cart queues
+ *	Method for threads processing cart queues
+ *	Pre: function takes a void* as an argument
+ *	Post: function returns a void* as the return value
  */
 void *process_carts(void *arg)
 {
@@ -28,11 +30,14 @@ void *process_carts(void *arg)
 	char direction;
 	struct cart_t *cart;
 
+	/* retrieve the char that contains the next direction */
 	in = (char *) arg;
 	direction = *in;
 
 	printf("thread for direction %c starts\n", direction);
 	cart = q_getCart(direction);
+
+	/* critical section of the algorithm */
 	while (cart != NULL) {
 		printf("thread for direction %c gets cart %i\n", direction, cart->num);
 		monitor_arrive(cart);
@@ -51,12 +56,13 @@ void *process_carts(void *arg)
 
 int main(int argc, char *argv[])
 {
-	unsigned int i;
+	unsigned int i;				/* needed for "for" loops */
 	unsigned int length;		/* length of argument string */
 	char dirs[4];				/* direction for thread initialization */
 
 	pthread_t cart_threads[4];	/* Threads for processing each direction's carts */
 
+	/* check the number of arguments */
 	if (argc != 2)
 	{
 		fprintf(stderr, "usage: %s <arbitrary-length string of [n, w, s, e]>\n", argv[0]);
@@ -96,6 +102,7 @@ int main(int argc, char *argv[])
 	dirs[2] = Q_SOUTH;
 	dirs[3] = Q_EAST;
 
+	/* create the four cart threads, one for each direction */
 	for (i = 0; i < THREADS; i++)
 	{
 		if(pthread_create(&cart_threads[i], NULL, process_carts, (void *) &dirs[i]) != 0)

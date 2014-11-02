@@ -33,7 +33,7 @@ public class TokenCount {
 
 		/* create the Producer and Consumer threads */
 		Thread producer = new Thread(new Producer(sharedQueue, args[1],
-				numPages));
+				numPages, num_processors - 1));
 		ExecutorService pool = Executors.newCachedThreadPool();
 
 		/* begin timed code ... */

@@ -16,4 +16,4 @@ sensor_run(Watcher_pid, Sensor_id) ->
 		_ ->
 			Watcher_pid ! {Sensor_id, Measurement}
 	end ,
-	sensor_measure(Watcher_pid, Sensor_id) .
+	sensor_run(Watcher_pid, Sensor_id) .

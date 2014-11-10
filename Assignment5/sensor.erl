@@ -3,7 +3,7 @@
 %% Suketu Shah and Michael Peleshenko
 %% sensor.erl
 -module(sensor).
--export([ sensor_run()/2 ]).
+-export([ sensor_run/2 ]).
 
 sensor_run(Watcher_pid, Sensor_id) ->
 	random:seed(now()) ,

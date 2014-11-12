@@ -18,12 +18,14 @@ watcher_start() ->
 watcher_spawn(Sensors, Watcher_group) ->
 	if
 		(Sensors =< 10) and (Sensors > 0) ->
-			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, Sensors ]) ;
+			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, Sensors ]) ,
+			io:fwrite("Done spawning watchers~n") ;
 		Sensors > 10 ->
 			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, 10 ]) ,
 			watcher_spawn(Sensors - 10, Watcher_group + 1) ;
 		true ->
-			exit('done spawning')
+			io:fwrite("No watchers to spawn~n")
+			
 	end .
 
 %% Function to start sensons and receiving messages
@@ -32,7 +34,7 @@ watcher_spawn(Sensors, Watcher_group) ->
 watcher_run(Watcher_group, Count) ->
 	%% Spawn sensors for given watcher thread
 	Sensors = sensor_spawn(Watcher_group, Count, 0, []) ,
-	%%io:fwrite("STARTED: Watcher started with sensors: ~n~p~n", [ Sensors ]) ,
+	io:fwrite("STARTED: Watcher started with sensors: ~n~p~n", [ Sensors ]) ,
 	%% start processing received messages
 	watcher_receive(Sensors) .
 

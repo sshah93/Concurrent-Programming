@@ -12,7 +12,7 @@ sensor_run(Watcher_pid, Sensor_id) ->
 	Measurement = random:uniform(11) ,
 	case Measurement of
 		11 ->
-			exit(Watcher_pid, 'anomalous_reading') ;
+			exit('anomalous_reading') ;
 		_ ->
 			Watcher_pid ! {Sensor_id, Measurement}
 	end ,

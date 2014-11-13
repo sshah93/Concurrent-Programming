@@ -3,7 +3,7 @@
 %% Suketu Shah and Michael Peleshenko
 %% watcher.erl
 -module(watcher) .
--export([ watcher_start/0, watcher_run/2, watcher_spawn/2, watcher_receive/1 ]) .
+-export([ watcher_start/0 ]) .
 
 %% Function to get number of sensors to start from user and start watchers for them
 watcher_start() ->
@@ -19,9 +19,8 @@ watcher_start() ->
 watcher_spawn(Sensors, Watcher_group) ->
 	if
 		(Sensors =< 10) and (Sensors > 0) ->
+			% main watcher spawner thread becomes the watcher for group 0
 			watcher_run(0, Sensors) ;
-			% _Pid = spawn(?MODULE, watcher_run, [ Watcher_group, Sensors ]) ,
-			% io:fwrite("Done spawning watchers~n") ;
 		Sensors > 10 ->
 			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, 10 ]) ,
 			watcher_spawn(Sensors - 10, Watcher_group + 1) ;
@@ -36,7 +35,7 @@ watcher_spawn(Sensors, Watcher_group) ->
 watcher_run(Watcher_group, Count) ->
 	%% Spawn sensors for given watcher thread
 	Sensors = sensor_spawn(Watcher_group, Count, 0, []) ,
-	io:fwrite("STARTED: Watcher started with sensors: ~n~p~n", [ Sensors ]) ,
+	io:fwrite("STARTED: Watcher started with sensors: ~p~n", [ Sensors ]) ,
 	%% start processing received messages
 	watcher_receive(Sensors) .
 
@@ -80,7 +79,7 @@ watcher_receive(Sensors) ->
 					{ New_pid, _ } = spawn_monitor(sensor, sensor_run, [ self(), Sensor_id ]) ,
 					%% Update list of sensors with new PID
 					New_sensors = lists:keyreplace(Sensor_id, 1, Sensors, {Sensor_id, New_pid}) ,
-					io:fwrite("RESTARTED: A sensor was restarted, updated list of sensors: ~n~p~n", [ New_sensors ]) ,
+					io:fwrite("RESTARTED: A sensor was restarted, updated list of sensors: ~p~n", [ New_sensors ]) ,
 					watcher_receive(New_sensors)
 			end ;
 		_ ->

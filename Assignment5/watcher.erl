@@ -5,11 +5,12 @@
 -module(watcher) .
 -export([ watcher_start/0, watcher_run/2, watcher_spawn/2, watcher_receive/1 ]) .
 
+%% Function to get number of sensors to start from user and start watchers for them
 watcher_start() ->
 	%% Get number of sensors to create from user
 	{ok, [ Sensors ]} = io:fread("enter number of sensors to start> ", "~d") ,
 	%% Spawn watcher threads
-	watcher_spawn(Sensors, 0) .
+	watcher_spawn(Sensors, 1) .
 
 %% Function to spawn Sensors sensors
 %% Sensors - number of sensors to spawn
@@ -18,8 +19,9 @@ watcher_start() ->
 watcher_spawn(Sensors, Watcher_group) ->
 	if
 		(Sensors =< 10) and (Sensors > 0) ->
-			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, Sensors ]) ,
-			io:fwrite("Done spawning watchers~n") ;
+			watcher_run(0, Sensors) ;
+			% _Pid = spawn(?MODULE, watcher_run, [ Watcher_group, Sensors ]) ,
+			% io:fwrite("Done spawning watchers~n") ;
 		Sensors > 10 ->
 			_Pid = spawn(?MODULE, watcher_run, [ Watcher_group, 10 ]) ,
 			watcher_spawn(Sensors - 10, Watcher_group + 1) ;

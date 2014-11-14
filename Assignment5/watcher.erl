@@ -3,7 +3,7 @@
 %% Suketu Shah and Michael Peleshenko
 %% watcher.erl
 -module(watcher) .
--export([ watcher_start/0 ]) .
+-export([ watcher_start/0, watcher_run/2 ]) .
 
 %% Function to get number of sensors to start from user and start watchers for them
 watcher_start() ->

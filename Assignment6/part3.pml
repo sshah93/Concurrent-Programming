@@ -1,3 +1,10 @@
+/* 
+*	Suketu Shah 
+*	CS-511
+*	Assignment 6 
+*	Part 3
+*/
+
 /* n is global */
 byte n;
 
@@ -18,6 +25,7 @@ proctype increment1toN(byte N) {
 	od
 }
 
+/* init method to start execution of the program */
 init {
 	n = 0;
 	atomic {

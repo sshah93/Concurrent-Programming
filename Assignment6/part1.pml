@@ -1,7 +1,14 @@
+/* 
+*	Suketu Shah 
+*	CS-511
+*	Assignment 6 
+*	Part 1
+*/
+
 /* n is global */
 byte n;
 
-/* N is the limit */
+/* N is the max limit */
 proctype increment1toN(byte N) {
 	byte i = 1;
 	byte temp;
@@ -16,6 +23,7 @@ proctype increment1toN(byte N) {
 	od
 }
 
+/* init method to start execution of the program */
 init {
 	n = 0;
 	atomic {

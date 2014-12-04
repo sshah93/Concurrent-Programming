@@ -69,4 +69,4 @@ next state=57,n=2,init=4,increment1toN_1=8,increment1toN.N=5,increment1toN.i=6,i
 next state=58,n=2,init=5,increment1toN_1=8,increment1toN.N=5,increment1toN.i=6,increment1toN.temp=1,increment1toN_2=8,increment1toN.N=5,increment1toN.i=6,increment1toN.temp=4,atomic=255,
 at end of simulation n = 2
 next state=59,n=2,init=6,increment1toN_1=8,increment1toN.N=5,increment1toN.i=6,increment1toN.temp=1,increment1toN_2=8,increment1toN.N=5,increment1toN.i=6,increment1toN.temp=4,atomic=255,
-simulation terminated=assert statement is false,line=26,statement={assert(n!=2)},
+simulation terminated=assert statement is false,line=34,statement={assert(n!=2)},
